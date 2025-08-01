@@ -14,8 +14,8 @@ using Plots
 alpha1 = 0.6
 alpha2 = 0.4
 theta = 0.2
-g_before = 0.0  # Initial government expenditure
-g_after = 20.0  # Government expenditure after shock
+gov_before = 0.0  # Initial government expenditure
+gov_after = 20.0  # Government expenditure after shock
 t_switch = 15.0 # Time when shock occurs
 tspan = (0.0, 65.0) # Simulation time span
 
@@ -27,16 +27,16 @@ function sim_model!(du, u, p, t)
     alpha1, alpha2, theta = p
     
     # Government expenditure (step function)
-    g = t >= t_switch ? g_after : g_before
+    gov = t >= t_switch ? gov_after : gov_before
     
     # Auxiliary variables
     yd = (1 - theta) * y
     c = alpha1 * yd + alpha2 * h_h
     
     # Differential equations
-    du[1] = c + g - y  # dy/dt: Income adjusts to demand
+    du[1] = c + gov - y  # dy/dt: Income adjusts to demand
     du[2] = yd - c      # dh_h/dt: Change in household cash
-    du[3] = g - theta * y  # dh_s/dt: Government deficit
+    du[3] = gov - theta * y  # dh_s/dt: Government deficit
     
     # Note: In continuous time, we don't need iterations as the ODE solver handles
     # the simultaneous determination of variables through differential equations
@@ -68,8 +68,8 @@ c = zeros(length(t))
 yd = zeros(length(t))
 
 for (i, ti) in enumerate(t)
-    g = ti >= t_switch ? g_after : g_before
-    y_star[i] = g / theta
+    gov = ti >= t_switch ? gov_after : gov_before
+    y_star[i] = gov / theta
     yd[i] = (1 - theta) * y[i]
     c[i] = alpha1 * yd[i] + alpha2 * h_h[i]
 end
@@ -85,7 +85,7 @@ plot(t, y_star,
     xlabel="Time",
     ylabel="",
     ylim=(0,130),
-    title="Figure 3.1 (Continuous): Impact of Y and Y* of a permanent increase in G",
+    title="Figure 3.1: Impact of Y and Y* of a permanent increase in G",
     titlefontsize=10,     
     legendfontsize=10,     
     guidefontsize=10,      
